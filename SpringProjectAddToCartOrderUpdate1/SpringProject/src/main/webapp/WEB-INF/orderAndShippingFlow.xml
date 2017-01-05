@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.springframework.org/schema/webflow
+                          http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd">
+<on-start>
+	<!-- demohandler is java class available through annotated Demohandler.java class.here we are calling it’s initFlow() method. -->
+	  <evaluate expression="orderAndShippinghandler.initFlow()" result="flowScope.shipmentDetail"/>
+	</on-start>
+	<view-state id="start" view="shippigDetail" model="flowScope.shipmentDetail">
+	   <transition on="submit" to="validate"/>
+	</view-state>
+ <action-state id="validate">
+		<evaluate expression="orderAndShippinghandler.checkDetails(shipmentDetail,messageContext)"></evaluate>
+		<transition on="success" to="confirmShippingDetails" />
+		<transition on="failure" to="start" />
+	</action-state>
+ <view-state id="confirmShippingDetails" view="confirmShippingDetails" model="flowScope.shipmentDetail">
+	<transition on="edit" to="start" />
+	<transition on="submit" to="payment" />
+	</view-state>
+	<view-state id="payment" view="payment" model="flowScope.shipmentDetail">
+	<transition on="submit" to="save" />
+	</view-state>
+	
+	<action-state id="save">
+		<evaluate expression="orderAndShippinghandler.saveDetail(shipmentDetail)"></evaluate>
+		<transition on="success" to="acknowledgement" />
+		<transition on="failure" to="start" />
+	</action-state>
+		<end-state id="acknowledgement" view="acknowledgementPage" />
+	<end-state id="toHome" view="externalRedirect:contextRelative:cartItemDisplay" />
+	<end-state id="toException" view="externalRedirect:contextRelative:exception" />
+	<global-transitions>
+		<transition on="home" to="toHome" />
+		<transition on="error" to="toException" />
+	</global-transitions>
+ </flow>
